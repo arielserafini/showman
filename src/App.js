@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
-import logo from './logo.svg';
 import './App.css';
+import { Layout, Header, Content, Grid, Cell} from 'react-mdl';
+import { List, ListItem, ListItemContent} from 'react-mdl';
+import { Chip } from 'react-mdl';
+import { ProgressBar } from 'react-mdl';
 
 class App extends Component {
   state = {
+    dataLoaded: false,
     shows: [],
     networks: [],
     activeFilter: {}
@@ -39,24 +43,39 @@ class App extends Component {
 
     this.setState({
       shows: shows,
-      networks: networks
-    })
+      networks: networks,
+      dataLoaded: true
+    });
   }
 
   componentDidMount() {
-    axios.get('http://api.tvmaze.com/schedule').then(data => this.parseShowData(data.data));
+    if (!this.state.dataLoaded) { 
+      axios.get('http://api.tvmaze.com/schedule').then(data => this.parseShowData(data.data));
+    }
   }
+
+  handleNetworkClick = (e, index, value) => { this.filterShowsByNetwork(value) }
 
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+      <Layout>
+        <Header>
           <h2>showman</h2>
-        </div>
-        <NetworkFilter onChange={(e)=>{this.filterShowsByNetwork(e.target.value)}} networks={this.state.networks}/>
-        <ShowList shows={this.state.shows} filter={this.state.activeFilter}/>
-      </div>
+        </Header>
+        <Content>
+          <ProgressBar style={{width: '100%'}} indeterminate/>
+          <Grid>
+            <Cell col={6}>
+              <h3>TV Shows</h3>
+              <ShowList shows={this.state.shows} filter={this.state.activeFilter}/>
+            </Cell>
+            <Cell col={6}>
+              <h3>Networks</h3>
+              <NetworkChips onNetworkClick={this.handleNetworkClick} networks={this.state.networks}/>
+            </Cell>
+          </Grid>
+        </Content>
+      </Layout>
     );
   }
 }
@@ -67,15 +86,13 @@ class ShowList extends Component {
     let filter = this.props.filter;
     let showItems = _.filter(shows, filter).map(show => {
       return (
-        <li key={show.id}>
-          <Show data={show}/>
-        </li>
+          <Show key={show.id} data={show}/>
       );
     });
     return (
-      <ul>
+      <List>
         {showItems}
-      </ul>
+      </List>
     );
   }
 }
@@ -84,26 +101,26 @@ class Show extends Component {
   render() {
     let show = this.props.data;
     return (
-      <span>{show.name} ({show.network.name})</span>
+      <ListItem twoLine>
+        <ListItemContent subtitle={show.network.name}>{show.name}</ListItemContent>
+      </ListItem>
     );
   }
 }
 
-class NetworkFilter extends Component {
-
+class NetworkChips extends Component {
+  handleClick = this.props.onNetworkClick;
   render() {
-    let renderOptions = this.props.networks.map(network => {
-        return (
-          <option key={network.id} value={network.id}>{network.name}</option>
-        );
+    let chips = this.props.networks.map(network => {
+      return (
+        <Chip style={{marginRight: 5}} onClick={() => this.handleClick(network.id)} key={network.id}>{network.name}</Chip>
+      );
     });
-
     return (
-      <select onChange={this.props.onChange}>
-        <option value="">All networks</option>
-        {renderOptions}
-      </select>
-    )
+      <div>
+        {chips}
+      </div>
+    );
   }
 }
 
