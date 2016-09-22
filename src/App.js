@@ -5,7 +5,6 @@ import './App.css';
 import { Layout, Header, Content, Grid, Cell} from 'react-mdl';
 import { List, ListItem, ListItemContent} from 'react-mdl';
 import { Chip } from 'react-mdl';
-import { ProgressBar } from 'react-mdl';
 
 class App extends Component {
   state = {
@@ -63,7 +62,6 @@ class App extends Component {
           <h2>showman</h2>
         </Header>
         <Content>
-          <ProgressBar style={{width: '100%'}} indeterminate/>
           <Grid>
             <Cell col={6}>
               <h3>TV Shows</h3>
