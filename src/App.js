@@ -38,7 +38,7 @@ class App extends Component {
 
   parseShowData(data) {
     let shows = this.extractFromProp(data, 'show');
-    let networks = this.extractFromProp(shows, 'network');
+    let networks = _.sortBy(this.extractFromProp(shows, 'network'), 'name');
 
     this.setState({
       shows: shows,
@@ -53,7 +53,7 @@ class App extends Component {
     }
   }
 
-  handleNetworkClick = (e, index, value) => { this.filterShowsByNetwork(value) }
+  handleNetworkClick = (value) => { this.filterShowsByNetwork(value) }
 
   render() {
     return (
@@ -69,7 +69,7 @@ class App extends Component {
             </Cell>
             <Cell col={6}>
               <h3>Networks</h3>
-              <NetworkChips onNetworkClick={this.handleNetworkClick} networks={this.state.networks}/>
+              <NetworkChips onNetworkClick={ this.handleNetworkClick } networks={this.state.networks}/>
             </Cell>
           </Grid>
         </Content>
@@ -107,11 +107,10 @@ class Show extends Component {
 }
 
 class NetworkChips extends Component {
-  handleClick = this.props.onNetworkClick;
   render() {
     let chips = this.props.networks.map(network => {
       return (
-        <Chip style={{marginRight: 5}} onClick={() => this.handleClick(network.id)} key={network.id}>{network.name}</Chip>
+        <Chip style={{marginRight: 5}} onClick={() => this.props.onNetworkClick(network.id)} key={network.id}>{network.name}</Chip>
       );
     });
     return (
