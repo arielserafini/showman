@@ -4,7 +4,7 @@ import _ from 'lodash';
 import './App.css';
 import { Layout, Header, Content, Grid, Cell} from 'react-mdl';
 import { List, ListItem, ListItemContent} from 'react-mdl';
-import { Chip } from 'react-mdl';
+import { Chip, Badge } from 'react-mdl';
 
 class App extends Component {
   state = {
@@ -39,6 +39,10 @@ class App extends Component {
   parseShowData(data) {
     let shows = this.extractFromProp(data, 'show');
     let networks = _.sortBy(this.extractFromProp(shows, 'network'), 'name');
+
+    networks.forEach(item => {
+      item.showCount = _.filter(shows, {network: {id: item.id} }).length;
+    });
 
     this.setState({
       shows: shows,
@@ -110,7 +114,9 @@ class NetworkChips extends Component {
   render() {
     let chips = this.props.networks.map(network => {
       return (
-        <Chip style={{marginRight: 5}} onClick={() => this.props.onNetworkClick(network.id)} key={network.id}>{network.name}</Chip>
+        <Badge key={network.id} text={network.showCount} overlap>
+          <Chip style={{marginRight: 5}} onClick={() => this.props.onNetworkClick(network.id)} key={network.id}>{network.name}</Chip>
+        </Badge>
       );
     });
     return (
